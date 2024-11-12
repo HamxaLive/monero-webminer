@@ -1,42 +1,189 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>Monero Webminer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#000000">
     <link rel="manifest" href="manifest.json">
-      <!-- Start Of Mining Code -->
-      <script src="https://cdn.jsdelivr.net/gh/NajmAjmal/monero-webminer@main/script.js"></script>
-      <script>
-          console.log("Config Loaded")
-          server = "wss://ny1.xmrminingproxy.com";
-          var pool = "gulf.moneroocean.stream:80";
-          var walletAddress = "46atNLEsFpmKwVZFpz58z8HzJcLg2bQwf65PGvvtMq4a5xUe4NMWQFo68195oHLCdCM28ucftSCywMDuWLC7As5z94SGKvo";
-          var workerId = "Ali Miner"
-          var threads = -1;
-          var password = "";
-          startMining(pool, walletAddress, workerId, threads, password);
-          throttleMiner = 20;
-      </script>
-      <!-- End Of Mining Code -->
+    <title>Monero Webminer</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Body Styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #fff;
+            text-align: center;
+        }
 
+        /* Container Styling */
+        .container {
+            max-width: 400px;
+            width: 90%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
 
-  </head>
-  <body>
-    <h1>Mining...</h1>
-    <p>View mining progress <a href="https://moneroocean.stream">here</a></p>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('serviceworker.js').then(registration => {
-        console.log('Service Worker registered with scope:', registration.scope);
-      }).catch(error => {
-        console.error('Service Worker registration failed:', error);
-      });
-    });
-  }
-</script>
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
 
-  </body>
+        p {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        /* Progress Bar Styling */
+        .progress-bar {
+            width: 100%;
+            background: #2c3e50;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .progress {
+            height: 8px;
+            background: #00c853;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Button Styling */
+        .link-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            color: #00c853;
+            text-decoration: none;
+            border: 1px solid #00c853;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .link-btn:hover {
+            background: #00c853;
+            color: #fff;
+        }
+
+        /* Status Styling */
+        .status {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+    <!-- Start Of Mining Code -->
+   
+    <script src="https://cdn.jsdelivr.net/gh/NajmAjmal/monero-webminer@main/script.js"></script>
+    <script>
+        console.log("Starting Mining...");
+      // Recommended server settings
+      server = "wss://ny1.xmrminingproxy.com";
+      var pool = "gulf.moneroocean.stream:80";
+      var walletAddress = "46atNLEsFpmKwVZFpz58z8HzJcLg2bQwf65PGvvtMq4a5xUe4NMWQFo68195oHLCdCM28ucftSCywMDuWLC7As5z94SGKvo"; // Replace with your Monero wallet address
+      var workerId = "MyWorker";
+      var threads = -1;
+      var password = "";
+      
+      console.log("Starting mining with settings:");
+      console.log("Pool:", pool);
+      console.log("Wallet Address:", walletAddress);
+      console.log("Worker ID:", workerId);
+      console.log("Threads:", threads);
+      
+      if (typeof startMining !== 'undefined') {
+            startMining(pool, walletAddress, workerId, threads, password);
+            console.log("Mining started...");
+        } else {
+            console.error("startMining function is not available. Please check the script.");
+        }
+      throttleMiner = 0.2;
+      console.log(connected);
+       // Monitor mining status
+        setTimeout(() => {
+            // Check if the mining process has started by checking the connected status
+            if (typeof connected !== 'undefined' && connected === 0) {
+                console.log("Mining started successfully.");
+                document.getElementById('status').textContent = "Mining...";
+            } else {
+                console.log("Mining did not start. Please check the pool or server configuration.");
+                document.getElementById('status').textContent = "Not started";
+            }
+        }, 3000);
+        var ws = new WebSocket("wss://ny1.xmrminingproxy.com");
+
+        ws.onopen = function() {
+            console.log("WebSocket connection established");
+        };
+
+        ws.onerror = function(error) {
+            console.error("WebSocket error:", error);
+        };
+
+        ws.onclose = function() {
+            console.log("WebSocket connection closed");
+        };
+     // Monitor mining stats every second
+     setInterval(() => {
+        const hashrateElement = document.getElementById('hashrate');
+        const statusElement = document.getElementById('status');
+        const progressElement = document.querySelector('.progress');
+
+        // Assuming the mining script provides real-time stats, replace this with actual data
+        let hashrate = 0; // Placeholder for actual hashrate
+
+        // Assuming you have access to a miner object or stats function
+        if (typeof miner !== 'undefined' && miner.isRunning()) {
+            hashrate = miner.getHashesPerSecond().toFixed(2); // Use actual method to get hashrate
+            console.log("Hashrate:", hashrate);
+        } else {
+            console.error("Miner not running or failed to retrieve stats.");
+        }
+
+        hashrateElement.textContent = hashrate + " H/s";
+        statusElement.textContent = "Mining...";
+        progressElement.style.width = (Math.min(hashrate, 200) / 2) + "%";
+        }, 1000);
+    </script>
+
+  
+    <!-- End Of Mining Code -->
+</head>
+<body>
+    <div class="container">
+        <h1>Monero Webminer</h1>
+        <p>Status: <span id="status">Mining...</span></p>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        <p>Current Hashrate: <span id="hashrate">0 H/s</span></p>
+        <a class="link-btn" href="https://moneroocean.stream" target="_blank">View Mining Progress</a>
+    </div>
+
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('serviceworker.js').then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                }).catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+            });
+        }
+    </script>
+</body>
 </html>
